@@ -38,5 +38,4 @@ interface FormRepository {
 	function getValueByFieldIdAndSubmissionId($field_id,$submission_id);
 
 	function formsByClientId($client_id);
-
 }

@@ -11,10 +11,7 @@ use Modules\Form\Entities\OptionValue;
 use Session;
 use DB;
 
-/**
-* 
-*/
-class EloquentForm implements FormRepository
+class FormEloquent implements FormRepository
 {
 	private $form;
 	private $field;
@@ -23,7 +20,14 @@ class EloquentForm implements FormRepository
 	private $value;
 	private $optionValue;
 
-	public function __construct(Form $form,Field $field,Option $option,FormSubmission $formSubmission,Value $value, OptionValue $optionValue)
+	public function __construct(
+			Form $form,
+			Field $field,
+			Option $option,
+			FormSubmission $formSubmission,
+			Value $value, 
+			OptionValue $optionValue
+		)
 	{
 		$this->form = $form;
 		$this->field = $field;
@@ -46,7 +50,6 @@ class EloquentForm implements FormRepository
 	}
 
 	public function create(array $attributes){
-		//$attributes['user_id']=Auth::id();
 		return $this->form->create($attributes);
 	}
 
@@ -59,7 +62,7 @@ class EloquentForm implements FormRepository
 	}
 
 	public function storeField(array $attributes){
-		
+		//store forms fileds--------------
 		for($i=0;$i<count($attributes['name']);$i++){
 			$data =array();
 			$data['form_id']=$attributes['form_id'];
@@ -68,12 +71,7 @@ class EloquentForm implements FormRepository
 			$data['type']=$attributes['type'][$i];
 			$data['element_type']=$attributes['element_type'][$i];
 			$data['validation']=$attributes['validation'][$i];
-			/*foreach($attributes['validation'] as $validation){
-				$data['validation']=$data['validation'].','.$validation[$i];
-			}*/
-			//return $data['validation'];
 			$data['regex']=$attributes['regex'][$i];
-
 			$this->field->create($data);
 		}
 
@@ -81,7 +79,7 @@ class EloquentForm implements FormRepository
 	}
 
 	public function fieldsByFormId($form_id){
-		return $this->field->where('form_id',$form_id)->select('fields.*')->get();
+		return $this->field->where('form_id',$form_id)->get();
 	}
 
 	public function deleteField($field_id){
@@ -112,26 +110,18 @@ class EloquentForm implements FormRepository
 	public function storeOption(array $attributes){
 			
 			foreach($attributes['name'] as $key=>$name){
-				//return $key;
-					$i=0;
-					foreach($attributes['name'][$key] as $name){
-						
-							$data = array();
-							//return $name;
-							//$data['name']=$name;
-							//return $attributes['order'][$field_id][$i];
-							$data['field_id']=$key;
-							//return $data['field_id'];
-							$data['name'] = $name;
-							$data['value'] = $attributes['value'][$key][$i];
-							$data['order'] = $attributes['order'][$key][$i];
-							//return $data;
-							$this->option->create($data);
-							$i++;
-				}
-				
-			}
-		
+				$i=0;
+				foreach($attributes['name'][$key] as $name){
+					$data = array();
+					$data['field_id']=$key;
+					$data['name'] = $name;
+					$data['value'] = $attributes['value'][$key][$i];
+					$data['order'] = $attributes['order'][$key][$i];
+					//return $data;
+					$this->option->create($data);
+					$i++;
+				}				
+			}		
 		return 'success';		
 	}
 
@@ -161,43 +151,30 @@ class EloquentForm implements FormRepository
 
 		//return $formSubmissionData;
 		$fields = $this->fieldsByFormId($attributes['form_id']);
-		//prepare data for values table------------------
-		//$valueData = array()
-		//$valueData['field_id'];
-		
+
 	    //prepare data for value table ---------------
 		foreach($fields as $field){
-			
+			//if filed type is checkbox then it may have multipal value so
 			if($field['type']=='checkbox'){
-				//return 'suman checkbox';
 				$valueData = array();
 				$valueData['form_submission_id'] = $formSubmissionData['id'];
 				$valueData['field_id']=$this->getFieldIdByNameKeyAndFormId($field['name_key'],$attributes['form_id']);
-				//$valueData['value']=$attributes[$field['name_key']];
+				//add checkbox value--------
 				foreach($attributes[$field['name_key']] as $checkOption){
-					//return $checkOption;
 					$valueData['value']=$checkOption;
 					$value = $this->value->create($valueData);
 				}
-				
-
 			}else{
 				$valueData = array();
 				$valueData['form_submission_id'] = $formSubmissionData['id'];
 				$valueData['field_id']=$this->getFieldIdByNameKeyAndFormId($field['name_key'],$attributes['form_id']);
 				$valueData['value']=$attributes[$field['name_key']];
 				$value = $this->value->create($valueData);
-
 			}
-			//return $valueData;
-			/*if($field['element']=='checkbox'){
-				foreach($attributes[])
-
-			}*/
-			
 		}
 		return $fields;
 	}
+
 	private function getFieldIdByNameKeyAndFormId($name_key, $field_id){
 		$field = $this->field->where('name_key',$name_key)->where('form_id',$field_id)->first();
 		return $field['id'];
@@ -211,9 +188,7 @@ class EloquentForm implements FormRepository
 		$values = $this->value->where('field_id',$field_id)->where('form_submission_id',$submission_id)->get();
 		
 		$myvalue = '';
-		/*foreach($values as $value){
-			$myvalue .= $value['value'] . ' ';
-		}*/
+		
 		$i = 0;
 		$len = count($values);
 		foreach ($values as $value) {
@@ -226,8 +201,6 @@ class EloquentForm implements FormRepository
 		    // …
 		    $i++;
 		}
-
-		//return $value['value'];
 		return $myvalue;
 	}
 	
@@ -239,34 +212,5 @@ class EloquentForm implements FormRepository
     		return false;
     	}
     }
-
-    public function formsByEventId($event_id){
-    	//$forms =  $this->form->where('client_id','=',$client_id)->get();
-    	$forms =DB::table('forms')
-    				->join('event_forms','event_forms.form_id','=','forms.id')
-    				->where('event_forms.event_id','=',$event_id)
-    				->select('forms.*')
-    				->get();
-    	if(count($forms)>0){
-    		return $forms;
-    	}else{
-    		return false;
-    	}
-    }
-
-    public function getFormByIdAndEventId($form_id,$event_id){
-		//return $this->form->where('id','=',$form_id)->where('client_id','=',$client_id)->first();
-		$forms =DB::table('forms')
-    				->join('event_forms','event_forms.form_id','=','forms.id')
-    				->where('event_forms.event_id','=',$event_id)
-    				->where('event_forms.form_id','=',$form_id)
-    				->select('forms.*')
-    				->first();
-    	if(count($forms)>0){
-    		return $forms;
-    	}else{
-    		return false;
-    	}
-	}
 	
 }

@@ -100,7 +100,7 @@ class FormServiceProvider extends ServiceProvider
     public function registerFormRepository(){
         return $this->app->bind(
             'Modules\\Form\\Repositories\\FormRepository',
-            'Modules\\Form\\Repositories\\EloquentForm'
+            'Modules\\Form\\Repositories\\FormEloquent'
             );
     }
 }

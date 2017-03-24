@@ -15,8 +15,6 @@ class CreateFormsTable extends Migration
     {
         Schema::create('forms', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('client_id')->unsigned();
-            $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
             $table->string('title');
             $table->string('slag');
             $table->text('submit_url');

@@ -10,17 +10,6 @@ Create Form
     <h3>Create Form Here</h3>
     <form class="form-horizontal" action="{{url('form/create')}}" method="post">
     {{csrf_field()}}
-
-      <div class="form-group{{ $errors->has('client_id') ? ' has-error' : '' }}">
-        <label class="control-label col-sm-4" for="client_id">For Client</label>
-        <div class="col-sm-8">
-          <select class="form-control" name="client_id">
-          @foreach($clients as $client)
-            <option value="{{$client['id']}}">{{$client['name']}}</option>
-          @endforeach
-          </select>
-        </div>
-      </div>
       <div class="form-group{{ $errors->has('title') ? ' has-error' : '' }}">
         <label class="control-label col-sm-4" for="title">Form Title:</label>
         <div class="col-sm-8">

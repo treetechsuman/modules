@@ -10,6 +10,5 @@ class FormSubmission extends Model
     	'form_id',
     	'submission_date',
     	'version',
-    	'client_id',
     ];
 }

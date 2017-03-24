@@ -19,7 +19,6 @@ class CreateFormSubmissionsTable extends Migration
             $table->foreign('form_id')->references('id')->on('forms');
             $table->date('submission_date');
             $table->string('version');
-            $table->string('client_id');
             $table->timestamps();
         });
     }
